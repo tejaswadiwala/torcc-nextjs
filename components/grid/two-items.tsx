@@ -3,7 +3,7 @@ import { getCollectionProducts } from 'lib/shopify';
 import type { Product } from 'lib/shopify/types';
 import Link from 'next/link';
 
-function ThreeItemGridItem({
+function TwoItemGridItem({
   item,
   size,
   priority
@@ -37,21 +37,20 @@ function ThreeItemGridItem({
   );
 }
 
-export async function ThreeItemGrid() {
+export async function TwoItemGrid() {
   // Collections that start with `hidden-*` are hidden from the search page.
   const homepageItems = await getCollectionProducts({
-    collection: 'hidden-homepage-featured-items'
+    collection: 'kinwood-commemorative-films'
   });
 
-  if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;
+  if (!homepageItems[0] || !homepageItems[1]) return null;
 
   const [firstProduct, secondProduct, thirdProduct] = homepageItems;
 
   return (
     <section className="mx-auto grid max-w-screen-2xl gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2">
-      <ThreeItemGridItem size="full" item={firstProduct} priority={true} />
-      <ThreeItemGridItem size="half" item={secondProduct} priority={true} />
-      <ThreeItemGridItem size="half" item={thirdProduct} />
+      <TwoItemGridItem size="full" item={firstProduct} priority={true} />
+      <TwoItemGridItem size="half" item={secondProduct} priority={true} />
     </section>
   );
 }
