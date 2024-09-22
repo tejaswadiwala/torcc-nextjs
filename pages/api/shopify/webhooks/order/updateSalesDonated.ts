@@ -73,9 +73,9 @@ async function updateSalesDonatedMetaobject(orderTotalPrice: number) {
     }
   }`;
 
-  const getVariables = `{
-    "id": "gid://shopify/Metaobject/${process.env.SHOPIFY_METAOBJECT_SALES_DONATED_ID}"
-  }`;
+  const getVariables = {
+    id: `gid://shopify/Metaobject/${process.env.SHOPIFY_METAOBJECT_SALES_DONATED_ID}`
+  };
 
   const getResponse = await shopifyGraphQL(
     JSON.stringify({ query: getQuery, variables: getVariables })
