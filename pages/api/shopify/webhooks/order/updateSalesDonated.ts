@@ -60,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-async function updateSalesDonatedMetaobject(orderTotalPrice: number) {
+async function updateSalesDonatedMetaobject(orderTotalPrice: string) {
   const getQuery = `query GetMetaobjectByHandle($id: ID!) {
     metaobject(id: $id) {
       handle
@@ -82,7 +82,7 @@ async function updateSalesDonatedMetaobject(orderTotalPrice: number) {
   );
 
   const currentTotalPrice = parseInt(getResponse.data.metaobject.fields[0].value);
-  const priceToUpdate = Math.floor(currentTotalPrice + orderTotalPrice);
+  const priceToUpdate = Math.floor(currentTotalPrice + parseInt(orderTotalPrice));
 
   const updateQuery = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
     metaobjectUpdate(id: $id, metaobject: $metaobject) {
