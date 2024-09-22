@@ -10,18 +10,22 @@ import { usePathname, useSearchParams } from 'next/navigation';
 export function Gallery({ images }: { images: { src: string; altText: string }[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const imageSearchParam = searchParams.get('image');
+  const imageSearchParam = searchParams ? searchParams.get('image') : '';
   const imageIndex = imageSearchParam ? parseInt(imageSearchParam) : 0;
 
-  const nextSearchParams = new URLSearchParams(searchParams.toString());
+  const nextSearchParams = searchParams
+    ? new URLSearchParams(searchParams.toString())
+    : new URLSearchParams();
   const nextImageIndex = imageIndex + 1 < images.length ? imageIndex + 1 : 0;
   nextSearchParams.set('image', nextImageIndex.toString());
-  const nextUrl = createUrl(pathname, nextSearchParams);
+  const nextUrl = createUrl(pathname as string, nextSearchParams);
 
-  const previousSearchParams = new URLSearchParams(searchParams.toString());
+  const previousSearchParams = searchParams
+    ? new URLSearchParams(searchParams.toString())
+    : new URLSearchParams();
   const previousImageIndex = imageIndex === 0 ? images.length - 1 : imageIndex - 1;
   previousSearchParams.set('image', previousImageIndex.toString());
-  const previousUrl = createUrl(pathname, previousSearchParams);
+  const previousUrl = createUrl(pathname as string, previousSearchParams);
 
   const buttonClassName =
     'h-full px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white flex items-center justify-center';
@@ -69,7 +73,9 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
         <ul className="my-12 flex items-center justify-center gap-2 overflow-auto py-1 lg:mb-0">
           {images.map((image, index) => {
             const isActive = index === imageIndex;
-            const imageSearchParams = new URLSearchParams(searchParams.toString());
+            const imageSearchParams = searchParams
+              ? new URLSearchParams(searchParams.toString())
+              : new URLSearchParams();
 
             imageSearchParams.set('image', index.toString());
 
@@ -77,7 +83,7 @@ export function Gallery({ images }: { images: { src: string; altText: string }[]
               <li key={image.src} className="h-20 w-20">
                 <Link
                   aria-label="Enlarge product image"
-                  href={createUrl(pathname, imageSearchParams)}
+                  href={createUrl(pathname as string, imageSearchParams)}
                   scroll={false}
                   className="h-full w-full"
                 >
