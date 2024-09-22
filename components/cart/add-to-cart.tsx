@@ -73,11 +73,16 @@ export function AddToCart({
   const [message, formAction] = useFormState(addItem, null);
   const searchParams = useSearchParams();
   const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
+
+  // Add a null check for searchParams
   const variant = variants.find((variant: ProductVariant) =>
-    variant.selectedOptions.every(
-      (option) => option.value === searchParams.get(option.name.toLowerCase())
-    )
+    searchParams
+      ? variant.selectedOptions.every(
+          (option) => option.value === searchParams.get(option.name.toLowerCase())
+        )
+      : false
   );
+
   const selectedVariantId = variant?.id || defaultVariantId;
   const actionWithVariant = formAction.bind(null, selectedVariantId);
 
