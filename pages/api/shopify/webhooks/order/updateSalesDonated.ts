@@ -60,8 +60,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
-async function updateSalesDonatedMetaobject(currentTotalPrice: number) {
-  const query = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
+async function updateSalesDonatedMetaobject(orderTotalPrice: number) {
+  const getQuery = `query GetMetaobjectByHandle($id: ID!) {
+    metaobject(id: $id) {
+      handle
+      type
+      fields {
+        key
+        value
+        type
+      }
+    }
+  }`;
+
+  const getResponse = await shopifyGraphQL(JSON.stringify({ query: getQuery }));
+
+  const currentTotalPrice = parseInt(getResponse.data.metaobject.fields[0].value);
+  const priceToUpdate = Math.floor(currentTotalPrice + orderTotalPrice);
+
+  const updateQuery = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
     metaobjectUpdate(id: $id, metaobject: $metaobject) {
       metaobject {
         handle
@@ -74,19 +91,21 @@ async function updateSalesDonatedMetaobject(currentTotalPrice: number) {
     }
   }`;
 
-  const variables = {
+  const updateVariables = {
     id: `gid://shopify/Metaobject/${process.env.SHOPIFY_METAOBJECT_SALES_DONATED_ID}`,
     metaobject: {
       fields: [
         {
           key: 'sales_donated',
-          value: `${Math.floor(currentTotalPrice)}`
+          value: `${priceToUpdate}`
         }
       ]
     }
   };
 
-  const response = await shopifyGraphQL(JSON.stringify({ query: query, variables }));
+  const updateResponse = await shopifyGraphQL(
+    JSON.stringify({ query: updateQuery, updateVariables })
+  );
 }
 
 async function getRawBody(req: NextApiRequest): Promise<Buffer> {
