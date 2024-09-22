@@ -80,7 +80,7 @@ async function updateSalesDonatedMetaobject(currentTotalPrice: number) {
       fields: [
         {
           key: 'sales_donated',
-          value: `${currentTotalPrice}`
+          value: `${Math.floor(currentTotalPrice)}`
         }
       ]
     }
