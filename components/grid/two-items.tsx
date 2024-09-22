@@ -40,7 +40,7 @@ function TwoItemGridItem({
 export async function TwoItemGrid() {
   // Collections that start with `hidden-*` are hidden from the search page.
   const homepageItems = await getCollectionProducts({
-    collection: 'kinwood-commemorative-films'
+    collection: 'frontpage'
   });
 
   if (!homepageItems[0] || !homepageItems[1]) return null;
