@@ -80,7 +80,7 @@ async function updateSalesDonatedMetaobject(currentTotalPrice: number) {
       fields: [
         {
           key: 'sales_donated',
-          value: currentTotalPrice
+          value: `${currentTotalPrice}`
         }
       ]
     }
@@ -122,7 +122,7 @@ async function shopifyGraphQL(body: string): Promise<any> {
   try {
     console.log({
       message: `${type}: Starting now.`,
-      body: JSON.parse(body)
+      body
     });
 
     const endpoint = `https://${process.env.SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/graphql.json`;
