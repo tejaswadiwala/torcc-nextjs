@@ -51,13 +51,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Shop:', shop);
     console.log('Payload:', JSON.stringify(webhookBody, null, 2));
 
-    // Handle the webhook (add specific logic here based on the topic)
+    await updateSalesDonatedMetaobject(webhookBody.current_total_price);
 
     res.status(200).send('Webhook received and processed');
   } catch (error) {
     console.error('Error processing webhook:', error);
     res.status(500).send('Internal Server Error');
   }
+}
+
+async function updateSalesDonatedMetaobject(currentTotalPrice: number) {
+  const query = `mutation UpdateMetaobject($id: ID!, $metaobject: MetaobjectUpdateInput!) {
+    metaobjectUpdate(id: $id, metaobject: $metaobject) {
+      metaobject {
+        handle
+      }
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }`;
+
+  const variables = {
+    id: `gid://shopify/Metaobject/${process.env.SHOPIFY_METAOBJECT_SALES_DONATED_ID}`,
+    metaobject: {
+      fields: [
+        {
+          key: 'sales_donated',
+          value: currentTotalPrice
+        }
+      ]
+    }
+  };
+
+  const response = await shopifyGraphQL(JSON.stringify({ query: query, variables }));
 }
 
 async function getRawBody(req: NextApiRequest): Promise<Buffer> {
@@ -86,4 +115,45 @@ function verifyWebhook(body: Buffer, hmac: string): boolean {
   const calculatedHmac = calculateHMAC(body);
   if (!calculatedHmac) return false;
   return crypto.timingSafeEqual(Buffer.from(calculatedHmac), Buffer.from(hmac));
+}
+
+async function shopifyGraphQL(body: string): Promise<any> {
+  const type = 'shopifyGraphQL';
+  try {
+    console.log({
+      message: `${type}: Starting now.`,
+      body: JSON.parse(body)
+    });
+
+    const endpoint = `https://${process.env.SHOPIFY_SHOP_NAME}.myshopify.com/admin/api/${process.env.SHOPIFY_API_VERSION}/graphql.json`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'X-Shopify-Access-Token': process.env.SHOPIFY_ACCESS_TOKEN as string,
+        'Content-Type': 'application/json'
+      },
+      body: body
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `${type}: HTTP error! status: ${response.status}, message: ${JSON.stringify(response)}`
+      );
+    }
+
+    const jsonResponse = await response.json();
+
+    console.log({
+      message: `${type}: Successfully completed execution.`,
+      response: JSON.stringify(jsonResponse)
+    });
+    return jsonResponse;
+  } catch (error) {
+    console.error({
+      message: `${type}: Error occurred.`,
+      error: error
+    });
+    throw error;
+  }
 }
